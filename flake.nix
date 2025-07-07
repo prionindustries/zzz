@@ -4,36 +4,30 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-       zzz = {
-      url = "git+https://gitlab.com/nixos1213727/zZz.git";
-      #	url = "git+ssh://git@gitlab.com/nixos1213727/zZz.git";
 
-      # --- THIS IS THE FIX ---
-      # Tell this flake to use the same nixpkgs as the main flake,
-      # which prevents a circular dependency.
+    # --- Re-enabled with the correct GitHub SSH URL ---
+    # This is the standard way to access private repositories.
+    zzz = {
+      url = "git+ssh://git@github.com/prionindustries/zzz.git";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, ... }:
+  outputs = { self, nixpkgs, home-manager, ... }@inputs:
     let
       # --- Basic variables ---
       username = "zombie";
       system = "x86_64-linux";
       lib = nixpkgs.lib;
 
-      # --- Theme Logic (Updated for new structure) ---
-      # Path to the directory containing theme folders
+      # --- Theme Logic ---
       themesPath = ./theming/themes;
-
-      # Get a list of available themes from the directory names
       availableThemes = lib.attrNames (builtins.readDir themesPath);
-
-      # Read the desired theme name from the user's config file
       currentThemeName =
         let
           themeFilePath = "/home/${username}/.config/current-theme";
@@ -41,15 +35,10 @@
           if builtins.pathExists themeFilePath
           then builtins.readFile themeFilePath
           else "zombie_cyan"; # Default theme
-
-      # Determine the active theme, falling back to the default
       activeThemeName =
         if lib.elem currentThemeName availableThemes
         then currentThemeName
         else "zombie_cyan";
-
-      # --- Active Palette ---
-      # Import the active palette file directly
       activePalette = import (themesPath + "/${activeThemeName}/palette.nix");
 
     in
@@ -59,9 +48,10 @@
           inherit system;
 
           specialArgs = {
-            # Pass the entire palette object down
             palette = activePalette;
             inherit username;
+            # Pass all inputs down, including the now-active 'zzz'
+            inherit inputs;
             inherit lib;
           };
 
@@ -74,7 +64,6 @@
               home-manager.users.${username} = import ./home/home.nix;
 
               home-manager.extraSpecialArgs = {
-                # Pass the palette to home-manager as well
                 palette = activePalette;
                 inherit username;
               };
