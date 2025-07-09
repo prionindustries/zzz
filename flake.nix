@@ -1,15 +1,15 @@
-# /etc/nixos/flake.nix
 {
   description = "My Neon Zombie NixOS Flake";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
 
-    # --- Re-enabled with the correct GitHub SSH URL ---
-    # This is the standard way to access private repositories.
+    # --- THIS IS THE CHANGE ---
+    # Using the simple public URL for a public GitHub repository.
+    # This removes the need for SSH keys.
     zzz = {
-      url = "git+ssh://git@github.com/prionindustries/zzz.git";
-      inputs.nixpkgs.follows = "nixpkgs";
+      url = "github:prionindustries/zzz";
+      inputs.nixpkgs.follows = "nixpkgs"; # Keep this to prevent circular dependencies
     };
 
     home-manager = {
@@ -18,28 +18,33 @@
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, ... }@inputs:
+  outputs = { self, nixpkgs, home-manager, ... }:
     let
-      # --- Basic variables ---
+      # --- Stage 1: Define basic variables ---
       username = "zombie";
       system = "x86_64-linux";
       lib = nixpkgs.lib;
 
-      # --- Theme Logic ---
-      themesPath = ./theming/themes;
-      availableThemes = lib.attrNames (builtins.readDir themesPath);
+      # --- Stage 2: Restructured Theme Logic ---
+      availableThemes = lib.attrNames (builtins.readDir ./theming);
       currentThemeName =
         let
           themeFilePath = "/home/${username}/.config/current-theme";
         in
           if builtins.pathExists themeFilePath
           then builtins.readFile themeFilePath
-          else "zombie_cyan"; # Default theme
+          else "green";
+
       activeThemeName =
         if lib.elem currentThemeName availableThemes
         then currentThemeName
-        else "zombie_cyan";
-      activePalette = import (themesPath + "/${activeThemeName}/palette.nix");
+        else "green";
+
+      # --- Stage 3: Define active theme assets ---
+      activeThemePath = ./theming + "/${activeThemeName}";
+      activePalette = import (activeThemePath + "/palette.nix");
+      activeWallpaper = activeThemePath + "/wallpaper.png"; # Updated to png
+      activeIcon = activeThemePath + "/icon.png";
 
     in
     {
@@ -49,9 +54,9 @@
 
           specialArgs = {
             palette = activePalette;
+            wallpaper = activeWallpaper;
+            icon = activeIcon;
             inherit username;
-            # Pass all inputs down, including the now-active 'zzz'
-            inherit inputs;
             inherit lib;
           };
 
@@ -65,6 +70,8 @@
 
               home-manager.extraSpecialArgs = {
                 palette = activePalette;
+                wallpaper = activeWallpaper;
+                icon = activeIcon;
                 inherit username;
               };
             }
