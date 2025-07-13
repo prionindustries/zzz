@@ -21,7 +21,8 @@ in
   # --- Theme Switcher Script ---
   home.file.".local/bin/theme-switcher" = {
     executable = true;
-    source = ../nixos-theme-switcher-script.nix;
+    # Reference the actual script file
+    source = ../nixos-theme-switcher.nix;
   };
 
   # --- Correct Hyprland Configuration for Home Manager ---
