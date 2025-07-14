@@ -4,13 +4,6 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
 
-    # --- THIS IS THE CHANGE ---
-    # Using the simple public URL for a public GitHub repository.
-    # This removes the need for SSH keys.
-    zzz = {
-      url = "github:prionindustries/zzz";
-      inputs.nixpkgs.follows = "nixpkgs"; # Keep this to prevent circular dependencies
-    };
 
     home-manager = {
       url = "github:nix-community/home-manager";
