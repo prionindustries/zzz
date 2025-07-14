@@ -1,6 +1,12 @@
+
+# MFY Flake Guide
+
+Welcome to **MFY** – a NixOS flake that applies a "neon-horrified" twist on the traditional Dracula theme. If you enjoy deep purples and vibrant highlights but want something even darker and more intense, this flake is for you.
+=======
 # ZZZ Flake Guide
 
 Welcome to **ZZZ** – a NixOS flake that applies a "neon-horrified" twist on the traditional Dracula theme. If you enjoy deep purples and vibrant highlights but want something even darker and more intense, this flake is for you.
+
 
 ## Features
 
@@ -14,8 +20,13 @@ Welcome to **ZZZ** – a NixOS flake that applies a "neon-horrified" twist on th
 2. Clone the repository:
 
    ```bash
+
+   git clone https://github.com/prionindustries/zzz.git mfy
+   cd mfy
+=======
    git clone https://github.com/prionindustries/zzz.git zzz
    cd zzz
+
    ```
 3. Switch to the configuration:
 
